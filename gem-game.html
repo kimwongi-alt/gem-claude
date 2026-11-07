@@ -37,7 +37,7 @@
   <button id="newBtn">🔄 새 게임</button>
   <button id="soundBtn">🔊 소리</button>
 </div>
-<div class="help">같은 보석 3개 이상을 가로·세로로, 또는 2×2 사각형으로 맞추세요. 클릭 두 번 또는 드래그로 교환!</div>
+<div class="help">같은 보석 3개 이상을 가로·세로로 맞추세요. 클릭 두 번 또는 드래그로 교환!</div>
 
 <script>
 const N = 8, T = 7;
@@ -76,13 +76,7 @@ function matchAt(tt, r, c) {
   for (let k = c + 1; k < N && tt[r][k] === t; k++) h++;
   for (let k = r - 1; k >= 0 && tt[k][c] === t; k--) v++;
   for (let k = r + 1; k < N && tt[k][c] === t; k++) v++;
-  if (h >= 3 || v >= 3) return true;
-  // 2×2 사각형
-  for (let r0 = r - 1; r0 <= r; r0++) for (let c0 = c - 1; c0 <= c; c0++) {
-    if (r0 < 0 || c0 < 0 || r0 + 1 >= N || c0 + 1 >= N) continue;
-    if (tt[r0][c0] === t && tt[r0 + 1][c0] === t && tt[r0][c0 + 1] === t && tt[r0 + 1][c0 + 1] === t) return true;
-  }
-  return false;
+  return h >= 3 || v >= 3;
 }
 function findMove() {
   const tt = types();
@@ -112,19 +106,13 @@ function findMatches() {
   };
   scan((a, b) => grid[a][b]);
   scan((a, b) => grid[b][a]);
-  // 2×2 사각형
-  for (let r = 0; r < N - 1; r++) for (let c = 0; c < N - 1; c++) {
-    const sq = [grid[r][c], grid[r][c + 1], grid[r + 1][c], grid[r + 1][c + 1]];
-    if (sq.every(g => g.t === sq[0].t)) { sq.forEach(g => set.add(g)); runs.push(sq); }
-  }
   return { set, runs };
 }
 function randomFill(spawnAbove) {
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
     let t;
     do { t = rnd(); } while ((c >= 2 && grid[r][c - 1].t === t && grid[r][c - 2].t === t) ||
-                             (r >= 2 && grid[r - 1][c].t === t && grid[r - 2][c].t === t) ||
-                             (r >= 1 && c >= 1 && grid[r - 1][c].t === t && grid[r][c - 1].t === t && grid[r - 1][c - 1].t === t));
+                             (r >= 2 && grid[r - 1][c].t === t && grid[r - 2][c].t === t));
     if (spawnAbove) grid[r][c] = gem(t, r, c, r - N - 1 - (N - r) * 0.3);
     else { grid[r][c].t = t; grid[r][c].pop = 1; }
   }
